@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training video</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background: #0b0c0c;
+  }
+  iframe {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  #error-message {
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    text-align: center;
+    padding-top: 40px;
+  }
+</style>
+</head>
+<body>
+  <div id="error-message"></div>
+  <iframe id="player" style="display:none"
+    title="Training video"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen>
+  </iframe>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const videoId = params.get('v');
+    const errorDiv = document.getElementById('error-message');
+    const iframe = document.getElementById('player');
+
+    if (videoId) {
+      iframe.src = `https://www.youtube.com/embed/${videoId}?modestbranding=1&rel=0`;
+      iframe.style.display = 'block';
+    } else {
+      errorDiv.textContent = 'No video specified.';
+    }
+  </script>
+</body>
+</html>
