@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Fundamentals: Data Studio training</title>
+<style>
+ :root {
+ --pink: #d53880;
+ --ink: #0b0c0c;
+ --grey: #505a5f;
+ --light-grey: #f3f2f1;
+ --border-grey: #b1b4b6;
+ --code-bg: #0b0c0c;
+ --code-text: #e5e5e5;
+ --blue: #1d70b8;
+ }
+ * { box-sizing: border-box; }
+ html { scroll-behavior: smooth; }
+ body {
+ margin: 0;
+ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+ color: var(--ink);
+ background: #ffffff;
+ line-height: 1.6;
+ }
+
+ .layout { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
+
+ nav.side {
+ background: var(--light-grey);
+ border-right: 1px solid var(--border-grey);
+ padding: 24px 0 60px;
+ position: sticky;
+ top: 0;
+ height: 100vh;
+ overflow-y: auto;
+ }
+
+ nav.side .brand {
+ display: flex; align-items: center; gap: 8px;
+ padding: 0 22px 18px; font-weight: bold; font-size: 1.05rem;
+ border-bottom: 1px solid var(--border-grey); margin-bottom: 10px;
+ }
+
+ .logo-dot {
+ width: 24px; height: 24px; border-radius: 50%;
+ background: var(--pink); display: inline-flex; align-items: center;
+ justify-content: center; flex-shrink: 0;
+ }
+ .logo-dot svg { width: 19px; height: 19px; }
+
+ .group-label {
+ font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+ color: var(--grey); padding: 18px 22px 6px;
+ }
+
+ nav.side a {
+ display: block; padding: 9px 22px; color: var(--ink); text-decoration: none;
+ font-size: 0.95rem; border-left: 3px solid transparent; line-height: 1.4;
+ }
+ nav.side a:hover { background: #e8e7e5; }
+ nav.side a.active { border-left-color: var(--pink); background: #ffffff; font-weight: 600; }
+
+ main { padding: 44px 56px 100px; max-width: 760px; }
+
+ .page { display: none; }
+ .page.active { display: block; }
+
+ .crumb { font-size: 0.95rem; color: var(--grey); margin-bottom: 20px; }
+
+ h1 { font-size: 2.1rem; margin: 0 0 20px; line-height: 1.2; }
+ h2 { font-size: 1.6rem; margin: 40px 0 16px; }
+ h3 { font-size: 1.15rem; margin: 28px 0 10px; }
+
+ p { font-size: 1.1rem; margin: 0 0 18px; }
+ ul, ol { font-size: 1.1rem; padding-left: 26px; margin: 0 0 18px; }
+ li { margin-bottom: 8px; }
+
+ .callout {
+ background: var(--light-grey); border-left: 4px solid var(--pink);
+ padding: 18px 22px; margin: 20px 0 28px; border-radius: 0 4px 4px 0;
+ }
+ .callout p { margin: 0; font-size: 1.05rem; }
+ .callout p + p { margin-top: 12px; }
+ .callout strong { color: var(--ink); }
+
+ .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+ .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+ @media (max-width: 900px) { .two-col, .three-col { grid-template-columns: 1fr; } .layout { grid-template-columns: 1fr; } nav.side { position: relative; height: auto; } main { padding: 28px; } }
+
+ .card { border: 1px solid var(--border-grey); border-radius: 6px; padding: 18px 20px; }
+ .card h4 { margin: 0 0 10px; font-size: 1.05rem; }
+ .card.pros h4 { color: #00703c; }
+ .card.cons h4 { color: #d4351c; }
+ .card.need h4 { color: var(--pink); }
+ .card.solution h4 { color: var(--blue); }
+ .card ul { margin: 0; padding-left: 20px; font-size: 1rem; }
+ .card li { margin-bottom: 6px; }
+ .card p { font-size: 1rem; margin: 0 0 10px; }
+ .card p:last-child { margin-bottom: 0; }
+
+ .step-list { counter-reset: step; list-style: none; padding-left: 0; }
+ .step-list > li { counter-increment: step; position: relative; padding-left: 44px; margin-bottom: 20px; }
+ .step-list > li::before {
+ content: counter(step); position: absolute; left: 0; top: 0;
+ width: 30px; height: 30px; border-radius: 50%; background: var(--pink); color: #fff;
+ font-weight: bold; font-size: 0.95rem; display: flex; align-items: center; justify-content: center;
+ }
+ .step-list p { margin: 0 0 10px; font-size: 1.1rem; }
+ .step-list ul { margin: 8px 0 0; font-size: 1rem; }
+
+ .code-box { position: relative; background: var(--code-bg); color: var(--code-text); border-radius: 6px; margin: 10px 0 18px; overflow: hidden; }
+ .code-box .code-label { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #262626; font-size: 0.85rem; color: #cfcfcf; }
+ .copy-btn { background: var(--pink); color: #fff; border: none; border-radius: 4px; padding: 6px 14px; font-size: 0.85rem; cursor: pointer; font-family: inherit; }
+ .copy-btn:hover { background: #b52d6b; }
+ .copy-btn.copied { background: #00703c; }
+ pre { margin: 0; padding: 18px 20px; overflow-x: auto; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 0.88rem; line-height: 1.55; white-space: pre-wrap; word-wrap: break-word; }
+
+ .tag { display: inline-block; background: var(--pink); color: #fff; font-size: 0.8rem; font-weight: bold; padding: 3px 10px; border-radius: 3px; margin-bottom: 10px; }
+
+ .page-pager { display: flex; justify-content: space-between; margin-top: 44px; padding-top: 20px; border-top: 1px solid var(--border-grey); }
+ .page-pager a { color: var(--pink); text-decoration: none; font-weight: 600; font-size: 0.98rem; }
+ .page-pager a:hover { text-decoration: underline; }
+
+ footer.page-footer { color: var(--grey); font-size: 0.9rem; margin-top: 60px; }
+
+ .screenshot { max-width: 100%; height: auto; border-radius: 6px; margin: 12px 0 22px; display: block; }
+
+ .file-download {
+ display: flex; align-items: center; gap: 16px; border: 1px solid var(--border-grey);
+ border-radius: 6px; padding: 16px 20px; margin: 10px 0 24px; background: var(--light-grey);
+ }
+ .file-download .file-icon {
+ width: 38px; height: 38px; border-radius: 6px; background: var(--pink);
+ display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+ }
+ .file-download .file-icon svg { width: 20px; height: 20px; }
+ .file-download .file-text p { margin: 0; font-size: 1rem; }
+ .file-download .file-text a { color: var(--pink); font-weight: 700; text-decoration: none; }
+ .file-download .file-text a:hover { text-decoration: underline; }
+ .video-link {
+ display: flex; align-items: center; gap: 16px; border: 1px solid var(--border-grey);
+ border-radius: 6px; padding: 16px 20px; margin: 10px 0 24px; background: var(--light-grey);
+ }
+ .video-link .video-icon {
+ width: 38px; height: 38px; border-radius: 6px; background: var(--pink);
+ display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+ }
+ .video-link .video-icon svg { width: 18px; height: 18px; }
+ .video-link .video-text p { margin: 0; font-size: 1rem; }
+ .video-link .video-text a { color: var(--pink); font-weight: 700; text-decoration: none; }
+ .video-link .video-text a:hover { text-decoration: underline; }
+ .video-link .video-text .subtitle { color: var(--grey); font-size: 0.95rem; margin-top: 2px; }
+
+.session-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.session-row {
+  display: flex;
+  border: 1px solid #b1b4b6; /* GOV.UK grey border */
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.session-content {
+  flex: 0 0 25%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.session-image {
+  flex: 0 0 75%;
+  background: #f3f2f1; /* placeholder grey, GOV.UK style */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.session-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.dashboard-carousel {
+  margin: 10px 0 28px;
+}
+
+.carousel-label {
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0 0 8px;
+}
+
+.carousel-image {
+  width: 100%;
+  max-width: 100%;
+}
+
+.carousel-controls {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.carousel-arrow {
+  background: var(--pink);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.carousel-arrow:hover {
+  background: #b52d6b;
+}
+
+.page-footer a {
+  color: #a8195a;
+}
+
+</style>
+</head>
+<body>
+
+<div class="layout">
+ <nav class="side" id="sideNav">
+ <div class="brand">
+ <span class="logo-dot">
+ <svg viewBox="0 0 24 23" xmlns="http://www.w3.org/2000/svg">
+  <path d="M7 1h13v1h-13zM6 2h15v1h-15zM6 3h3v1h-3zM10 3h11v1h-11zM6 4h3v1h-3zM10 4h11v1h-11zM6 5h15v1h-15zM6 6h15v1h-15zM6 7h15v1h-15zM6 8h15v1h-15zM6 9h15v1h-15zM6 10h7v1h-7zM6 11h7v1h-7zM6 12h11v1h-11zM6 13h11v1h-11zM6 14h5v1h-5zM5 15h6v1h-6zM2 16h9v1h-9zM2 17h9v1h-9zM0 18h14v1h-14zM0 19h11v1h-11zM13 19h1v1h-1zM0 20h11v1h-11zM13 20h1v1h-1zM0 21h11v1h-11zM0 22h10v1h-10z" fill="#fff"/>
+  <path d="M9 3h1v2h-1z" fill="#C44174"/>
+</svg>
+ </span>
+ Dashboard Fundamentals
+ </div>
+ <div class="group-label">Getting started</div>
+ <a href="#overview" data-id="overview" class="nav-link">Training overview</a>
+  <a href="#sessionoverview" data-id="sessionoverview" class="nav-link">Session overview</a>
+ <div class="group-label">Session 1: data, dashboards and components</div>
+ <a href="#session-1-overview" data-id="session-1-overview" class="nav-link">Overview</a>
+ <a href="#the-scenario" data-id="the-scenario" class="nav-link">Meet the scenario</a>
+ <a href="#your-data" data-id="your-data" class="nav-link">Prepare your data</a>
+ <a href="#create-a-dashboard" data-id="create-a-dashboard" class="nav-link">Create your dashboard</a>
+ <a href="#set-up-your-design" data-id="set-up-your-design" class="nav-link">Set up your design</a>
+ <a href="#add-a-scorecard" data-id="add-a-scorecard" class="nav-link">Add a scorecard</a>
+ <a href="#add-a-time-series-chart" data-id="add-a-time-series-chart" class="nav-link">Add a time series chart</a>
+ <a href="#add-a-bar-chart" data-id="add-a-bar-chart" class="nav-link">Add a bar chart</a>
+ <a href="#add-a-date-control" data-id="add-a-date-control" class="nav-link">Add a date control</a>
+ <a href="#add-filters" data-id="add-filters" class="nav-link">Add filters</a>
+ <a href="#session-1-homework" data-id="session-1-homework" class="nav-link">Session 1 summary and homework</a>
+ <div class="group-label">Session 2: the health tab</div>
+ <a href="#session-2-overview" data-id="session-2-overview" class="nav-link">Overview</a>
+ <a href="#add-pages-and-tabs" data-id="add-pages-and-tabs" class="nav-link">Add new pages</a>
+ <a href="#add-a-filtered-scorecard" data-id="add-a-filtered-scorecard" class="nav-link">Add a scorecard with a filter</a>
+ <a href="#calculate-a-percentage" data-id="calculate-a-percentage" class="nav-link">Calculate and display a percentage</a>
+ <a href="#add-a-multi-series-chart" data-id="add-a-multi-series-chart" class="nav-link">Add a multi series chart</a>
+ <a href="#add-a-table" data-id="add-a-table" class="nav-link">Add a table</a>
+ <a href="#session-2-homework" data-id="session-2-homework" class="nav-link">Session 2 summary and homework</a>
+ <div class="group-label">Session 3: new arrivals</div>
+ <a href="#session-3-overview" data-id="session-3-overview" class="nav-link">Overview</a>
+ <a href="#the-new-arrivals" data-id="the-new-arrivals" class="nav-link">The new arrivals</a>
+ <a href="#update-your-data" data-id="update-your-data" class="nav-link">Update your data</a>
+ <a href="#add-a-scorecard-incidents" data-id="add-a-scorecard-incidents" class="nav-link">Add a scorecard for incidents</a>
+ <a href="#add-a-time-series-incidents" data-id="add-a-time-series-incidents" class="nav-link">Add a time series chart for incidents</a>
+ <a href="#add-a-bar-chart-species" data-id="add-a-bar-chart-species" class="nav-link">Add a bar chart for species</a>
+ <a href="#share-your-dashboard" data-id="share-your-dashboard" class="nav-link">Share your dashboard</a>
+ <a href="#session-3-homework" data-id="session-3-homework" class="nav-link">Session 3 summary and homework</a>
+ <a href="#next-steps" data-id="next-steps" class="nav-link">Next steps</a>
+ </nav>
+
+ <main id="mainContent">
+
+<!-- ============================================================
+GROUP: Getting started
+============================================================ -->
+
+ <section class="page" id="page-overview" data-id="overview">
+ <h1>Training overview</h1>
+
+    <p>Data Studio (previously known as Looker Studio) is free software from Google you can use to create information dashboards. Though we're using Google's tools in this training, the principles of dashboard design transfer to other software, such as Tableau and PowerBI.</p>
+        
+    <p>This training assumes you have no knowledge and will teach you basic and intermediate skills for creating your own dashboards. It is designed as 3 sessions, and each should take you about an hour to complete.</p>
+
+    <p>Each session has a detailed worked section you can follow on your own. I have also included a video of me working through these in each session, so you can see it in practise as you go.</p>
+  
+  </section>
+
+  <section class="page" id="session-overview" data-id="sessionoverview">
+ <h1>Session overview</h1>
+
+<p>We will build a simple dashboard which has 3 pages and includes components, calculated fields and filters.</a></p>
+
+<div class="dashboard-carousel">
+  <img class="screenshot carousel-image" id="carouselImage" src="Images/session1-dashboard.png" alt="Session 1 dashboard example">
+  <div class="carousel-controls">
+    <button class="carousel-arrow" id="carouselPrev" aria-label="Previous dashboard">&larr;</button>
+    <p class="carousel-label" id="carouselLabel">Session 1</p>
+    <button class="carousel-arrow" id="carouselNext" aria-label="Next dashboard">&rarr;</button>
+  </div>
+</div>
+
+    <p>In <b>session 1</b> we start by identifying user needs, choosing data and adding it to your dashboard. We'll create some colour themes and start adding components. This takes about an hour. <a href="#session-1-overview">Go to Session 1.</a></p>
+
+    <p>In <b>session 2</b> we add new pages to our dashboard and expand how we work with components, adding new filters to components, using calculations to transform our data and adding multiple data to charts and tables. This takes about 30 minutes. <a href="#session-2-overview">Go to Session 2.</a></p>
+
+    <p>In <b>session 3</b> we continue to include more complex components and fields, and create our own groups to control how we see the data. This takes about 30 minutes. <a href="#session-3-overview">Go to Session 3.</a></p>
+  
+  </section>
+
+<!-- ============================================================
+GROUP: Session 1
+============================================================ -->
+
+<section class="page" id="page-session-1-overview" data-id="session-1-overview">
+
+<h1>Overview</h1>
+
+  <p>In this session we will:</p>
+  <ul>
+    <li>identify user questions</li>
+    <li>connect your data</li>
+    <li>format and design your interface</li>
+    <li>build scorecards, bar charts, line charts</li>
+    <li>add interactive filters</li>
+    <li>add a time series control</li>
+  </ul>
+
+  <img class="screenshot" src="Images/session1-dashboard.png" alt="Session 1 dashboard example">
+
+  <div class="video-link">
+   <span class="video-icon">
+     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+       <path d="M8 5v14l11-7z" fill="#fff"/>
+     </svg>
+   </span>
+   <div class="video-text">
+     <p><a href="Data/Session1.mp4" target="_blank" rel="noopener">Play a video of Session 1</a></p>
+     <p class="subtitle">This will open in a new tab, so you can use it for reference if you need to.</p>
+   </div>
+ </div>
+
+</section>
+
+
+
+ <section class="page" id="page-the-scenario" data-id="the-scenario">
+ <h1>Meet the scenario</h1>
+
+    <div class="callout">
+      <p><b>Scenario:</b> To promote opportunities for colossal growth, the government has decided to build and manage the world's first dinosaur reserve, just outside London.</p>
+      
+      <p>This will be managed by DSIT, in the Monitoring, Evaluation, Telemetry, and Ecological Operational Reporting (METEOR) directorate.</p>
+    </div>
+
+    <img class="screenshot" src="Images/welcome.png" alt="">
+
+    <p><b>Task:</b> we need to build a dashboard to answer our stakeholder's questions quickly.</p>
+
+    <h2>Start with user needs</h2>
+
+    <p>Before you do any analysis, or display it in a dashboard, ask two questions:</p>
+    <ul>
+      <li>Who are our users?</li>
+      <li>What do they need to know?</li>
+    </ul>
+
+    <p>We'll design each dashboard on this basis. This tells you:</p>
+    <ul>
+      <li>their key questions and priorities (what do they want to know and why?)</li>
+      <li>the language they use (would they say 'views' or 'popularity'?)</li>
+      <li>their context (how long do they have to work with the dashboard, how familiar are they with the interface?)</li>
+      <li>their expertise (do they know the metrics we're using?)</li>
+    </ul>
+
+    <div class="callout">
+      <p>How to set up a performance framework is out of scope for this dashboarding training, I will cover this in a separate session.</p>
+    </div>
+    </section>
+
+ <section class="page" id="page-your-data" data-id="your-data">
+ <h1>Prepare your data</h1>
+
+    <p>Data Studio supports data connections to common sources, such as, APIs, BigQuery - and Excel sheets, as we will use in this training.</p>
+
+    <p>It is important to understand the data you're working with. This data includes several columns including:</p>
+    <ul>
+      <li>Date - when the animal arrived in the park</li>
+      <li>Animal_ID - a unique identifier for each dinosaur</li>
+      <li>Species - the dinosaur's species</li>
+      <li>Zone - which area of the park is currently located in</li>
+      <li>Health status - the current health condition of the dinosaur</li>
+      <li>Population - the population the dinosaur adds to the park</li>
+    </ul>
+
+    <img class="screenshot" src="Images/data-sample.png" alt="">
+
+    <h2>Make sure your data is ready</h2>
+
+    <p>Before you use add data to dashboarding software you need to make sure it contains as few as possible errors or inconsistencies (known as being 'cleaned'). For example, you should have:</p>
+    <ul>
+      <li>clear and consistent naming conventions for headers and data — Data Studio is case sensitive</li>
+      <li>headers in row 1 — Data Studio reads row 1 as column names</li>
+      <li>no blank rows — Data Studio stops reading when it hits one</li>
+      <li>no merged cells — these stop Data Studio detecting fields</li>
+    </ul>
+
+    <p>Do this cleaning work in Sheets or Excel, not in Data Studio. Processing in the dashboard slows loading times for your users — and if you store your data in BigQuery, it also costs money. It is also much easier to do in sheets.</p>
+
+    <div class="file-download">
+      <span class="file-icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3v13m0 0l-4.5-4.5M12 16l4.5-4.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 18v2a1 1 0 001 1h14a1 1 0 001-1v-2" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <div class="file-text">
+        <p><a href="Data/Jurassic data.xlsx" download>Download the Jurassic Reserve data (.xlsx)</a><br>This is the raw data we will connect to Data Studio in this session.</p>
+      </div>
+    </div>
+
+  </section>
+
+ <section class="page" id="page-create-a-dashboard" data-id="create-a-dashboard">
+ <h1>Create your dashboard</h1>
+
+<p>Now you have data, we can make a new dashboard and start adding data to it.</p>
+
+    <p>To make a new dashboard:</p>
+    <ol class="step-list">
+      <li><a href="https://datastudio.google.com/">Log into Data Studio</a>.</li>
+      <li>Click 'Create' then select 'Report' (Ignore the window which asks you for data.).</li>
+    </ol>
+
+    <img class="screenshot" src="Images/new-dashboard.png" alt="">
+
+    <h2>Take a quick tour of Data Studio</h2>
+
+    <p>Every dashboard has the same layout:</p>
+    <ul>
+      <li>the top toolbar with editing options, which includes a button on the right to 'View' (preview) the dashboard - this changes to 'Edit' when you click it</li>
+      <li>the canvas in the middle where you create what your dashboard looks like</li>
+      <li>the properties panel on the right, where you control settings for each component</li>
+      <li>the data panel on the far right, where you control the data sources you're using</li>
+    </ul>
+
+    <img class="screenshot" src="Images/interface-panels.png" alt="">
+
+    <p>When you select a component, the properties panel splits into a 'Setup' tab (component settings and fields — the columns from your data) and a 'Style' tab (component formatting).</p>
+
+    <img class="screenshot" src="Images/interface-tabs.png" alt="">
+
+    <h2>Add data to Data Studio</h2>
+
+    <p>We will now add data to our dashboard and start working with it. To add a data source:</p>
+
+    <ol class="step-list">
+      <li>Click 'Add data' on the toolbar.</li>
+        <img class="screenshot" src="Images/add-data-1.png" alt="">
+      <li>Click 'Google Sheets'.</li>
+      <li>Select your sheet and tab.</li>
+      <li>Click 'Add'.</li>
+    </ol>
+
+    <p>The name of the tab will appear in the data panel. This means it is available for us to use.</p>
+      <img class="screenshot" src="Images/add-data-4.png" alt="">
+
+    <div class="callout">
+      <p>If you have a spreadsheet with several tabs, you will need to add each tab manually</p>
+    </div>
+  </section>
+
+ <section class="page" id="page-set-up-your-design" data-id="set-up-your-design">
+ <h1>Set up your design style</h1>
+
+    <p>You need to set up your dashboard design to make sure it's visually consistent. There are 2 ways to control colours and fonts:</p>
+    <ul>
+      <li>global controls (which apply to everything)</li>
+      <li>individual controls (for each component)</li>
+    </ul>
+
+    <p>It's best practice to make simple dashboards, where each page answers one simple user question. This means you'll have several dashboard pages, so the best style approach is to:</p>
+    <ul>
+      <li>make global themes (for example, for key colours)</li>
+      <li>create a template tab which includes your basic layout and controls</li>
+      <li>duplicate this template to make a new page</li>
+      <li>adjust components as needed (such as adjusting a graph colour for accessibility)</li>
+    </ul>
+
+    <h2>Choose fonts and colours</h2>
+
+    To adjust the default colours and styles for your fonts and components:
+    <ol class="step-list">
+      <li>Click 'Theme and layout'.</li>
+      <li>Click 'Customise'.</li>
+      <li>Set your colours following your department's brand guidelines, for:
+        <ul>
+          <li>Primary styles — graph text and titles</li>
+          <li>Accent styles — arrows, selectors</li>
+          <li>Textbox styles — links and textbox fonts</li>
+          <li>Page navigation — links for page selection</li>
+          <li>Chart palette — main chart colours</li>
+        </ul>
+      </li>
+    </ol>
+
+    <img class="screenshot" src="Images/global-themes.png" alt="">
+
+    <h2>Create your page design</h2>
+
+     <p>Your dashboard page design is the consistent shape of your dashboard before you add content. This usually includes:</p>
+     <ul>
+      <li>the page banner and title</li>
+      <li>the date range control</li>
+      <li>any other consistent elements (such as a text box explaining what the page shows and how to use it)</li>
+     </ul>
+
+     <img class="screenshot" src="Images/page-design-3.png" alt="">
+
+    <p>To adjust how your dashboard is laid out:</p>
+    <ol class="step-list">
+      <li>On the top toolbar click the drawing components (such as textbox, line or shape).</li>
+      <li>Add a rectangular shape for your banner and title background.</li>
+      <li>Add a textbox and include text for the title.</li>
+      <li>Click the component to edit their properties in the properties panel (such as colour and size).</li>
+    </ol>
+
+    <img class="screenshot" src="Images/page-design-2.png" alt="">
+   
+    </section>
+
+ <section class="page" id="page-add-a-scorecard" data-id="add-a-scorecard">
+ <h1>Add a scorecard</h1>
+
+    <p>Now we add our first component, based on our user needs.</p>
+    
+    <p> The first user question is <strong>how many dinosaurs do we have?</strong></p>
+
+    <div class="two-col">
+      <div class="card need">
+        <h4>User need</h4>
+        <p>As a Lead, I need to get a simple headline figure quickly, so I can report back to my superiors.</p>
+      </div>
+      <div class="card solution">
+        <h4>Solution: scorecard</h4>
+        <p>Displays a single summarised number. Can show change (for example, compared to last month).</p>
+      </div>
+    </div>
+
+    <p>To add a scorecard to your dashboard:</p>
+    <ol class="step-list">
+      <li>Click 'Add chart' then select 'Scorecard'.</li>
+      <li>Click the 'Setup' tab.</li>
+      <li>Drag 'Animal ID' into the 'Primary dimension' field - this counts the number of rows with an ID in the data.</li>
+      <li>Hover over the word 'SUM' and click the pencil icon, to edit the variable.</li>
+      <li>Under Aggregation click 'Count Distinct' to count the number of unique identifiers.</li>
+      <li>Click 'Display name' and change it to something user friendly (such as, Dinosaurs).</li>
+        <img class="screenshot" src="Images/scorecard-setup-3.png" alt="">
+      <li>(Optional) Click 'Display format' to add or remove decimal places.</li>
+    </ol>
+
+    <p>This adds a scorecard, but the number may be hard for people to read easily.</p>
+
+    <img class="screenshot" src="Images/scorecard-style-1.png" alt="">
+
+    <p>To change how the scorecard looks:</p>
+    <ol class="step-list">
+      <li>Click the Style tab.</li>
+      <li>Under Labels, change font size to 30 and change field justification so it's centred.</li>
+      <li>Under Background and border, change the colour to highlight a specific card.</li>
+      <li>Under Background and border, toggle a border shadow for subtle emphasis.</li>
+      <li>(Optional) under padding, change Line height to move the text down if you want larger scorecards.</li>
+      <li>(Optional) for large numbers, Under Primary metric, toggle compact numbers on (changes 1,213 to 1.2k).</li>
+    </ol>
+
+    <img class="screenshot" src="Images/scoreupdated.png" alt="">
+
+    </section>
+
+ <section class="page" id="page-add-a-time-series-chart" data-id="add-a-time-series-chart">
+ <h1>Add a time series chart</h1>
+
+     <p> The next user question is <strong>how has the number of dinosaurs changed over time</strong></p>
+
+    <div class="two-col">
+      <div class="card need">
+        <h4>User need</h4>
+        <p>As a Team manager, I need to see how the population changes over time, so I can plan and manage resources.</p>
+      </div>
+      <div class="card solution">
+        <h4>Solution: time series chart</h4>
+        <p>Displays trends over a continuous period. Identifies patterns over time.</p>
+      </div>
+    </div>
+
+    <h2>Understand dimensions and metrics</h2>
+
+    <p>Data Studio sorts your data into dimensions (things you group data by) and metrics (things you measure). This controls how they are shown on the dashboard, for example, whether it appears as an axis or as data. You can change these by:</p>
+    <ul>
+      <li>dragging them into different parts of settings panel</li>
+      <li>using them to create calculated fields (always metrics)</li>
+    </ul>
+
+    <p>You will usually drag your data into the dimension or the metric section manually, to choose how you want them to be shown</p>
+
+    <img class="screenshot" src="Images/dimensions.png" alt="">
+
+    <h2>Add a time series chart</h2>
+
+    <ol class="step-list">
+      <li>Click 'Add chart'.</li>
+      <li>Select 'Time series chart'.</li>
+      <li>Drag 'Animal_ID' onto Metric.</li>
+      <li>Set Aggregation to 'Count Distinct' (you're measuring unique dinosaurs per zone).</li>
+      <img class="screenshot" src="Images/time-series-setup-3.png" alt="">
+      <li>Click the pencil to edit: Data type, Date and Time, Month.</li>
+      <img class="screenshot" src="Images/time-series-setup-2.png" alt="">
+    </ol>
+
+    <img class="screenshot" src="Images/time-series-setup-2.png" alt="">
+
+    <p>To change how the Time series chart looks:</p>
+    <ol class="step-list">
+      <li>Click the Style tab.</li>
+      <li>Toggle 'Show title' to on, and change the title.</li>
+      <li>Set the left Y-axis font size to 16.</li>
+      <li>Set the X-axis font size to 16.</li>
+      <li>Toggle 'Legend' off.</li>
+    </ol>
+
+    <p>The time series chart now displays a title, and the font is large enough for people to read. You can change these numbers but make sure they are consistent for all your graphs.</p>
+
+    <img class="screenshot" src="Images/time-series-style-4.png" alt="">
+    </section>
+
+ <section class="page" id="page-add-a-bar-chart" data-id="add-a-bar-chart">
+ <h1>Add a bar chart</h1>
+
+    <p> The next user question is <strong>which zone has the most dinosaurs?</strong></p>
+
+    <div class="two-col">
+      <div class="card need">
+        <h4>User need</h4>
+        <p>As a Team manager, I need to see how the population changes in each zone, so I can plan and manage dinosaur allocation.</p>
+      </div>
+      <div class="card solution">
+        <h4>Solution: bar chart</h4>
+        <p>Compares metrics across categories. Shows rankings and distribution.</p>
+      </div>
+    </div>
+
+    <h2>Add a bar chart</h2>
+    <ol class="step-list">
+      <li>Click 'Add chart' then select 'Vertical bar chart'.</li>
+      <li>Drag 'Zone' onto Dimension (you're grouping by zone).</li>
+      <li>Drag 'Animal_ID' onto Metric.</li>
+      <li>Set Aggregation to 'Count Distinct' (you're measuring unique dinosaurs per zone).</li>
+          <img class="screenshot" src="Images/bar-chart-setup-2.png" alt="">
+
+      <li>Choose how the bars are ordered:
+        <ul>
+          <li>Sort section: Population</li>
+          <li>check the aggregation is Count</li>
+          <li>Order: Descending</li>
+        </ul>
+      </li>
+    </ol>
+
+    <p>To change how the bar chart looks:</p>
+    <ol class="step-list">
+      <li>Click the Style tab.</li>
+      <li>Toggle 'Show title' on and change it to 'Dinosaurs per zone'.</li>
+      <li>Set the left Y-axis font size to 16.</li>
+      <li>Set the X-axis font size to 16.</li>
+      <li>Toggle 'Legend' off.</li>
+    </ol>
+
+      <p>The bar chart now displays a title, and the axis are large enough for people to read.</p>
+
+
+    <img class="screenshot" src="Images/bar-chart-style-3.png" alt="">
+    </section>
+
+ <section class="page" id="page-add-a-date-control" data-id="add-a-date-control">
+ <h1>Add a date control</h1>
+
+     <p> The next user question is <strong>how can I see this data over different times scales</strong></p>
+
+    <div class="two-col">
+      <div class="card need">
+        <h4>User need</h4>
+        <p>As a dashboard user, I need to see metrics over specific time ranges, so I can see how information changes with time.</p>
+      </div>
+      <div class="card solution">
+        <h4>Solution: date range control</h4>
+        <p>Sets the time frame for a page. Allows comparison (for example, compared to last month).</p>
+      </div>
+    </div>
+
+    <h2>Add a date range control</h2>
+
+    <p>Date range controls let you control which time period your dashboard shows information for. This can be set to a default (for example, the year to date) but the controls allow users to change this to suit their needs.</p>
+
+     <p>Unless you're giving a summary, each page should have a date range control - so should be added to your page template. To add a date range control:</p>
+    <ol class="step-list">
+      <li>Click 'Add a control' then select 'Date range control'.</li>
+      <li>Drag this to the top of your dashboard.</li>
+      <li>Select the auto date range (for example, click 'Last 7 days' and change to 'Last quarter').</li>
+    </ol>
+
+    <img class="screenshot" src="Images/date-control-2.png" alt="">
+    </section>
+
+ <section class="page" id="page-add-filters" data-id="add-filters">
+ <h1>Add filters</h1>
+
+      <p> The next user question is <strong>how are species distributed in the park?</strong></p>
+
+    <div class="two-col">
+      <div class="card need">
+        <h4>User need</h4>
+        <p>As a Team manager, I need to isolate specific groups, so I can find their information quickly.</p>
+      </div>
+      <div class="card solution">
+        <h4>Solution: filters</h4>
+        <p>Narrows down the entire report. Simplifies the design for users. Enables interactivity.</p>
+      </div>
+    </div>
+
+      <p>Filters let you break down data and get more detail where you need to. The filter categories are automatically chosen from your data - but you can make your own filter groups if you need to.</p>
+
+
+    <h2>Add a filter to your dashboard</h2>
+    <ol class="step-list">
+      <li>Click 'Add a control' then select 'Drop-down list'.</li>
+      <li>Drag this to the top of your dashboard.</li>
+      <li>Drag the control dimension onto it (for example, Species).</li>
+    </ol>
+
+    <p>To change how the filter chart looks:</p>
+    <ol>
+      <li>Click the pen next to the control field and edit it to say 'Select species'.</li>
+      <img class="screenshot" src="Images/speciesselect.png" alt="">
+      <li>Optional: the filter is based on population - toggle 'Show values' off if you don't want to see the numbers next to each dimension when you click the filter.</li>
+      <img class="screenshot" src="Images/filters-2.png" alt="">
+    </ol>
+
+      <p>This filter will be applied to the whole dashboard. You should add this to your template, as even if you don't keep the same filter you should keep the same location on the dashboard,so you don't add extra cognitive load for your users.</p>
+
+      <img class="screenshot" src="Images/finishedfilter.png" alt="">
+
+    </section>
+
+ <section class="page" id="page-session-1-homework" data-id="session-1-homework">
+ <h1>Session 1 summary and homework</h1>
+
+ <p>Your dashboard should now include:</p>
+    <ul>
+      <li>a banner and page title, showing what the dashboard is for</li>
+      <li>time controls and filters for the data</li>
+      <li>a score card showing the number of dinosaurs in the park</li>
+      <li>a time series graph showing how dinosaur population has changed over time</li>
+      <li>a bar chart showing how the number of dinosaurs spread across each zone</li>
+    </ul>
+
+     <img class="screenshot" src="Images/session1-dashboard.png" alt="">
+
+ <p>The components you've added to this page will give you a better idea about how your page is laid out, and the colours and styles you've chosen. Before moving onto the next session, take time to adjust how this page is set up so you can use it as the template for future pages. For example, you could:</p>
+    <ul>
+      <li>change your theme colours</li>
+      <li>adjust where the controls are laid out on the screen</li>
+    </ul>
+
+    <p>You could also choose to add more components, for example:</p>
+    <ul>
+      <li>adding scorecards for other variables (such as species)</li>
+      <li>adding filters for other variables (such as zone)</li>
+    </ul>
+    </section>
+
+<!-- ============================================================
+GROUP: Session 2
+============================================================ -->
+
+<section class="page" id="page-session-2-overview" data-id="session-2-overview">
+  <h1>Overview</h1>
+  <p>In session 1 we:</p>
+  <ul>
+    <li>identified user questions</li>
+    <li>connected our data</li>
+    <li>formatted and designed our interface</li>
+    <li>added scorecards, bar charts and time series charts</li>
+    <li>added time series and filter controls</li>
+  </ul>
+
+  <p>In this session we will:</p>
+  <ul>
+        <li>add new pages</li>
+        <li>create calculated fields</li>
+        <li>format numbers</li>
+        <li>add tables with multiple sorts</li>
+      </ul>
+
+<img class="screenshot" src="Images/session2-dashboard.png" alt="Session 2 dashboard example">
+
+
+<div class="video-link">
+   <span class="video-icon">
+     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+       <path d="M8 5v14l11-7z" fill="#fff"/>
+     </svg>
+   </span>
+   <div class="video-text">
+     <p><a href="Data/Session2.mp4" target="_blank" rel="noopener">Play a video of Session 2</a></p>
+     <p class="subtitle">This will open in a new tab, so you can use it for reference if you need to.</p>
+   </div>
+   </div>
+
+</section> 
+<section class="page" id="page-add-pages-and-tabs" data-id="add-pages-and-tabs">
+ <h1>Adding or duplicating a page</h1>
+
+    <p>We will be continuing to explore components in this session, but first we need to talk about pages. It is important to have more than one page if your users have lots of questions. This is because busy pages (with lots of components) are hard to understand, and each component adds load time. Aim for a maximum of 3 to 6 components (such as scorecards, text boxes and graphs) per page.</p>
+
+    <p>When designing your dashboard, split up your pages by level of detail or theme, for example: overview, population details, health details.</p>
+
+    <p>To add a new 'template' page by duplicating an existing one:</p>
+    <ol class="step-list">
+      <li>Click 'Page' then 'Duplicate page' (duplicate your current page to keep your design template).</li>
+      <li>You'll see a page selector on the right.</li>
+      <li>Click 'Page' then 'Manage pages'.</li>
+      <li>Click the three dots to change properties (such as name or icon) — for example, Population and Health.</li>
+      <img class="screenshot" src="Images/add-page-2.png" alt="">
+      <li>Optional: change this in your title bar.</li>
+      <li>Optional: click 'Theme and layout', then 'Layout', and change 'Navigation type' to Tab.</li>
+      <img class="screenshot" src="Images/add-page-3.png" alt="">
+    </ol>
+
+    <p>You can now use your duplicated page as a base to keep your design approach consistent. You may find it easier to edit the settings of your existing page components, instead of adding new ones of the same type. Rename the banner to the focus of the new page, in this case, 'health'.</p>
+
+     </section>
+
+ <section class="page" id="page-add-a-filtered-scorecard" data-id="add-a-filtered-scorecard">
+ <h1>Add a scorecard with a filter</h1>
+
+      <p> The next user question is <strong>how many unhealthy dinosaurs do I have?</strong></p>
+
+    <div class="two-col">
+      <div class="card need">
+        <h4>User need</h4>
+        <p>As a Team manager, I need to quickly see how many ill dinosaurs there are, so I can focus my resources on helping them.</p>
+      </div>
+      <div class="card solution">
+        <h4>Solution: scorecard</h4>
+        <p>Displays a single summarised number. Can show change (for example, compared to last month).</p>
+      </div>
+    </div>
+
+     <p>The filter controls we have added act on the entire page at once. In this case, we want to add a filter to a specific component (to show the subection of unhealthy dinosaurs instead of all of them).</p>
+
+     <p>Your duplicated page already has a hero card which says how many dinosaurs are in the park. We can add a filter to this to show how many unhealthy dinosaurs are in the park. To do this:</p>
+    <ol class="step-list">
+      <li>Click the population score card (the component you want to add a filter to).</li>
+      <li>In the Setup tab, scroll to 'Add filter'.</li>
+      <li>Click 'Add filter'.</li>
+      <img class="screenshot" src="Images/component-filter-1.png" alt="">
+      <li>Set the rule for which part of the data to include (show) or exclude (hide).</li>
+      <ul>
+        <li>Change name to what the filter does: Hide health dinos</li>
+        <li>Change the action to 'Exclude'</li>
+        <li>Select the 'Health_status' variable</li>
+        <li>Select the match condition (when the health status is 'Equal to (=)')</li>
+        <li>Select the variable entry 'Healthy'</li>
+      </ul>
+      <img class="screenshot" src="Images/component-filter-2.png" alt="">
+    </ol>
+
+     <p>The new filter looks at the data and excludes any dinosaur with a status of 'healthy'. You can see it's been applied in the Settings panel</p>
+
+     <div class="callout">
+      <p>Any component-level filter you make will be available for all components using the same data (you won't need to remake it each time).</p>
+    </div>
+
+     <img class="screenshot" src="Images/hidedinosfilter.png" alt="">
+    
+     <p>You should also now change the text for the scorecard (click the pen icon next to the word 'Dinosaurs' Metric and rename it 'All unhealthy').</p>
+
+     <img class="screenshot" src="Images/allunhealthy.png" alt="">
+
+    </section>
+
+ <section class="page" id="page-calculate-a-percentage" data-id="calculate-a-percentage">
+ <h1>Calculate and display a percentage</h1>
+
+    <p>Numbers can be hard to picture, so many people prefer to see percentages. We need to:</p>
+    <ul>
+      <li>use a calculated field to get the percentage metric</li>
+      <li>change how the information is displayed</li>
+    </ul>
+
+    <div class="callout">
+      <p>A calculated field is like adding a new column to the dataset, but Data Studio runs these calculations for you and it does not affect your original data. If there are lots of calculated fields this can affect loading time.</p>
+    </div>
+
+    <h2>Calculate a proportion</h2>
+
+    <p>Our dataset did not include percentages so we need to add a calculated field to do this manually. To do this:</p>
+
+    <ol class="step-list">
+      <li>Click 'Add a field' in the Data panel.</li>
+      <li>Name it 'Unhealthy proportion'.</li>
+      <li>
+        <p>Enter this formula, then click Save:</p>
+        <div class="code-box">
+          <div class="code-label">
+            <span>Unhealthy % formula</span>
+            <button class="copy-btn" onclick="copyCode('unhealthy-formula', this)">Copy</button>
+          </div>
+          <pre id="unhealthy-formula">COUNT_DISTINCT(CASE WHEN Health_Status = 'Critical' OR Health_Status = 'Unwell' THEN Animal_ID END)
+/
+COUNT_DISTINCT(CASE WHEN Health_Status IN ('Critical', 'Unwell', 'Healthy') THEN Animal_ID END)</pre>
+        </div>
+      </li>
+    </ol>
+
+    <p>This calculation gives a proportion for how many dinosaurs were unhealthy in the time period:</p>
+    <ol>
+      <li>Looks at every row in the data</li>
+      <li>Marks a row as "1" if the status is Critical or Unwell</li>
+      <li>Counts how many different dinosaurs had that mark</li>
+      <li>Divides that by how many different dinosaurs appear as Critical, Unwell, or Healthy in total</li>
+    </ol>
+
+    <h2>Display the proportion as a percentage</h2>
+
+    <p>When you add this data to a scorecard you will see this as a proportion. We can control how the data is formatted to make it appear as a percentage.</p>
+
+     <p>To add the proportion as a scorecard:</p>
+      <ol class="step-list">
+        <li>Click the 'All unhealthy' number scorecard, right-click and copy it.</li>
+        <li>Right-click and paste to add a copy into your dashboard.</li>
+        <li>Scroll down and hover over your 'Hide Healthy dino' filter and click the 'X' to remove it.</li>
+        <li>Click your 'Unhealthy proportion' calculated field in the data panel and drag it over the 'All unhealthy metric' to replace it.</li>
+            <img class="screenshot" src="Images/unhealthyprop.png" alt="">
+    </ol>
+
+    <p>To change how the scorecard is formatted:</p>
+    <ol class="step-list">
+      <li>Click the pen icon to edit.</li>
+      <li>Change the name to 'Unhealthy %'.</li>
+      <li>Change the data type to Numeric --> Percent.</li>
+      <img class="screenshot" src="Images/percentage-1.png" alt="">
+      <li>Change the Display format to 'Percent (0)'.</li>
+      <li>(Optional) Change how the scorecard is formatted using the style tab.</li>
+    </ol>
+
+    <p>You can now help your users by giving them context for the numbers using a dynamic percentage.</p>
+   <img class="screenshot" src="Images/percentofall.png" alt="">
+
+
+    </section>
+
+ <section class="page" id="page-add-a-multi-series-chart" data-id="add-a-multi-series-chart">
+ <h1>Add a multi series chart</h1>
+
+    <p> The next user question is <strong>what's the health of my dinosaurs in each zone?</strong></p>
+
+    <div class="two-col">
+      <div class="card need">
+        <h4>User need</h4>
+        <p>As a Team manager, I need to see which zone has the worst medical issues, so I can focus my resources on helping them.</p>
+      </div>
+      <div class="card solution">
+        <h4>Solution: multi series chart</h4>
+        <p>Compares multiple groups side by side. Reveals relationships and correlations.</p>
+      </div>
+    </div>
+
+    <p>You can make a multi series chart by adding several metrics at once to break down the data in a visual way. To add a multi-series chart:</p>
+    <ol class="step-list">
+      <li>Click 'Add chart' then select 'Bar chart'.</li>
+      <li>Drag 'Zone' onto Dimension (you're grouping by zone).</li>
+      <li>Drag 'Health_status' onto Breakdown dimension (you're then grouping by health).</li>
+      <li>Drag 'Animal_ID' onto Metric.</li>
+      <li>Set Aggregation to 'Count Distinct' (you're measuring unique dinosaurs per zone).</li>
+      <img class="screenshot" src="Images/multi-series-setup1.png" alt="">
+      <li>Choose how the bars are ordered:
+        <ul>
+          <li>Sort section: Population</li>
+          <li>Order: Descending</li>
+        </ul>
+      </li>
+      <img class="screenshot" src="Images/multi-series-setup.png" alt="">
+    </ol>
+
+    <p>To change how the multi-series chart is formatted:</p>
+    <ol class="step-list">
+      <li>Click the Style tab.</li>
+      <li>Under 'Chart title', toggle 'Show title' on and change it to 'Health issues per zone'.</li>
+      <li>Under Axes, set the left Y-axis font size to 16.</li>
+      <li>Under Axes, set the X-axis font size to 16.</li>
+      <li>Under Bar chart, change 'Group bar width' to 85%.</li>
+      <li>Optional: change other formatting settings</li>
+      <ul>
+        <li>change bar width (under Bar Chart settings in the Style tab)</li>
+        <li>change legend position (under Legend settings in the Style tab)</li>
+        <li>change bar colours (in the Colour by settings in the Style tab, or by global theme colours</li>
+      </ul>
+    </ol>
+
+    <p>Your chart will now show bar charts of health statuses for each zone.</p>
+
+    <img class="screenshot" src="Images/multi-series-style-3.png" alt="">
+
+    <h2>Filter out unwanted information</h2>
+
+    <p>If we add a bar chart, it shows all dinosaurs. We don't want to see healthy dinosaurs — they're too large a proportion, and they make the others hard to see. We want to filter out data where the status is 'Healthy'. This is similar to how you added a filter before:</p>
+    <ol class="step-list">
+      <li>Click the bar chart to select it.</li>
+      <li>In the Setup tab, scroll to 'Add filter'.</li>
+      <li>Click 'Add filter' and select 'Hide healthy dinos'.</li>
+      <li>(Optional) Make a filter to hide deceased dinosaurs too.</li>
+    </ol>
+
+    <img class="screenshot" src="Images/dinohealthfiltered.png" alt="">
+    </section>
+
+ <section class="page" id="page-add-a-table" data-id="add-a-table">
+ <h1>Add a table</h1>
+
+    <p> The next user question is <strong>which animals need attention?</strong></p>
+
+
+    <div class="two-col">
+      <div class="card need">
+        <h4>User need</h4>
+        <p>As a Team manager, I need to see which animals have the worst medical issues, so I can focus my resources on helping them.</p>
+      </div>
+      <div class="card solution">
+        <h4>Solution: table</h4>
+        <p>Displays granular details. Allows sorting. Allows monthly comparisons.</p>
+      </div>
+    </div>
+
+    <h2>Create a "days unhealthy" field</h2>
+
+    <p>We want a field that tracks how many days an animal has been ill. We'll tell Data Studio: if the animal is 'Not healthy', add 1 to a column for that day. We can then sum that number to calculate how many days the animal has been unwell.</p>
+
+    <ol class="step-list">
+      <li>Click 'Add a field' in the Data panel.</li>
+      <li>Name it 'Days unhealthy'.</li>
+      <li>
+        <p>Enter this formula, then click Save:</p>
+        <div class="code-box">
+          <div class="code-label">
+            <span>Days unhealthy formula</span>
+            <button class="copy-btn" onclick="copyCode('days-unhealthy-formula', this)">Copy</button>
+          </div>
+          <pre id="days-unhealthy-formula">CASE
+  WHEN Health_Status = 'Critical' OR Health_Status = 'Unwell' THEN 1
+  ELSE 0
+END</pre>
+        </div>
+      </li>
+    </ol>
+
+    <h2>Set up the table</h2>
+    <p>Now we have our data we need to use it to highlight unwell animals for our users. To add and sort a table:</p>
+    <ol class="step-list">
+      <li>Click 'Add chart' then select 'Table'.</li>
+      <li>Drag 'Animal ID', 'Species', 'Health Status' and 'Zone' onto Dimension.</li>
+      <li>Drag the pills to reorder the columns in the table.</li>
+      <img class="screenshot" src="Images/table-setup-1.png" alt="">
+      <li>Click the pen to edit their Display Name.</li>
+      <li>Drag 'Days unhealthy' over the 'Animal_ID' pill on Metric to replace it.</li>
+      <li>Set a filter to 'Hide healthy dinos' so you only see the ill ones.</li>
+      <li>Click the pill on Sort and select Health status (Ascending).</li>
+      <img class="screenshot" src="Images/sortsettings.png" alt="">
+      <li>Click 'Add sort' then 'Days unhealthy' (Descending).</li>
+      <img class="screenshot" src="Images/table-setup-3.png" alt="">
+    </ol>
+
+    <p>To change how the table is formatted:</p>
+    <ol class="step-list">
+      <li>Click the Style tab.</li>
+      <li>Toggle 'Show title' on and change it to 'Dinosaurs most at risk'.</li>
+      <li>Under 'Show header', toggle on 'Wrap text'.</li>
+      <li>Under table body, toggle off 'Row numbers'.</li>
+      <li>Under table body, toggle on 'Wrap text'.</li>
+      <li>Change justification for Dimensions and Metrics.</li>
+      <li>Drag the column bars to resize columns manually.</li>
+    </ol>
+
+    <p>Your table will now show a list of dinosaurs, where they are and sort them by worst status and number of days they've been unhealthy so they can be prioritised for care.</p>
+    <img class="screenshot" src="Images/dinotable.png" alt="">
+  </section>
+ <section class="page" id="page-session-2-homework" data-id="session-2-homework">
+ <h1>Session 2 summary and homework</h1>
+    <p>Your dashboard should now include:</p>
+    <ul>
+      <li>a new page for health components</li>
+      <li>time controls and filters for the data</li>
+      <li>a score card showing the number of unhealthy dinosaurs in the park</li>
+      <li>a score card showing unhealthy dinosaurs as a percentage of all dinosaurs</li>
+      <li>a multi series bar chart showing unheathy status in each zone</li>
+      <li>a sorted table highlighting the most ill dinosaurs</li>
+    </ul>
+
+    <img class="screenshot" src="Images/session2-dashboard.png" alt="">
+
+    <p>You may want to:</p>
+    <ul>
+      <li>add more scorecards for the number of unwell or critical dinosaurs (hint: you'll need to add filters to the scorecards)</li>
+      <li>hide the 'deceased' dinosaurs from the health issues per zone tab (hint: update or add conditions to your existing chart filters)</li>
+      <li>replace the zone filter with one that filters by health status</li>
+      <li>update the total count and charts on the Population tab to hide deceased dinos</li>
+      <li>add another sort to the table so it sorts by health, then by days</li>
+    </ul>
+    </section>
+
+<!-- ============================================================
+GROUP: Session 3
+============================================================ -->
+
+<section class="page" id="page-session-3-overview" data-id="session-3-overview">
+  <h1>Overview</h1>
+
+  <p>In session 2 we:</p>
+  <ul>
+    <li>added a new page</li>
+    <li>added a filter to a scorecard</li>
+    <li>used calculated fields to calculate proportion</li>
+    <li>change formatting options for percentages</li>
+    <li>added a multi-series chart with a filter</li>
+    <li>added a table with multiple sort features</li>
+  </ul>
+
+    <p>In this session we will:</p>
+    <ul>
+        <li>add new data and fields</li>
+        <li>add multiple series in graphs</li>
+        <li>more calculated fields</li>
+        <li>compare data (and time series)</li>
+        <li>share and schedule report delivery</li>
+      </ul>
+
+  <img class="screenshot" src="Images/session3-dashboard.png" alt="Session 3 dashboard example">
+
+    <div class="video-link">
+   <span class="video-icon">
+     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+       <path d="M8 5v14l11-7z" fill="#fff"/>
+     </svg>
+   </span>
+   <div class="video-text">
+     <p><a href="Data/Session3.mp4" target="_blank" rel="noopener">Play a video of Session 3</a></p>
+     <p class="subtitle">This will open in a new tab, so you can use it for reference if you need to.</p>
+   </div>
+ </div>
+
+ </section>
+
+ <section class="page" id="page-the-new-arrivals" data-id="the-new-arrivals">
+ <h1>The new arrivals</h1>
+
+   <div class="callout">
+      <p><b>Scenario:</b> In March, public demand meant we needed to add some predators to our park (they were given goats to eat).</p><p>We're also now seeing incidents of dinosaurs attacking each other.</p>
+    </div>
+
+    <img class="screenshot" src="Images/new-arrivals.png" alt="">
+
+    <p><b>Task:</b> we need to update our dashboards and track this behaviour.</p>
+    </section>
+
+ <section class="page" id="page-update-your-data" data-id="update-your-data">
+ <h1>Update your data</h1>
+
+    <p>You will often need to add new data to your dashboard, which may even include new columns or tabs. If you update data in your original spreadsheet but don't change any columns it will update in your dashboard automatically. However, you will need to add changes to columns manually.</p>
+
+    <p>I have updated your original dataset to include an additional column called 'Incident_count', a count of attacks started by that particular dinosaur. To add this to your dataset:
+    </p>
+    <ol class="step-list">
+      <li><p><a href="Files/Jurassic data update.xlsx" download>Click to download the latest data (.xlsx)</a></p>
+</li>
+      <li>Open the file.</li>
+      <li>Select all the data and copy it.</li>
+      <li>Select all the data in your original data file and paste over it</li>
+      <li>Save</li>
+    </ol>
+
+    <p>You could add the new dataset separately, the same way you added your file in the beginning. However, this would create a new data source for your dashboard and you'd have to switch your data sources over manually.</p>
+
+    <h2>Update your data</h2>
+
+    <p>If you're just adding new rows of data (for example, extra dates) you don't need to do anything. This happens automatically, but you can force an immediate refresh if you need to:</p>
+    <ol class="step-list">
+      <li>Click the three dots next to 'View' (or 'Edit').</li>
+      <li>Click 'Refresh data'.</li>
+    </ol>
+
+    <img class="screenshot" src="Images/refresh-data-2.png" alt="">
+
+   <p>We are adding new columns (fields) to the dataset. We need to tell Data Studio to check the original dataset and find these new columns. To do this:</p>
+    <ol class="step-list">
+      <li>Click Edit.</li>
+      <li>Click 'Resource' then 'Manage added data sources'.</li>
+      <img class="screenshot" src="Images/update-fields-1.png" alt="">
+      <li>Click 'Edit' next to your data source.</li>
+      <li>Click 'Refresh fields' in the bottom left.</li>
+      <li>Click 'Finished' then 'Close' in the top right.</li>
+    </ol>
+
+    </section>
+
+ <section class="page" id="page-add-a-scorecard-incidents" data-id="add-a-scorecard-incidents">
+ <h1>Add a scorecard for incidents</h1>
+
+    <p>The first user question is <strong>how many incidents do we have?</strong></p>
+
+    <div class="two-col">
+      <div class="card need">
+        <h4>User need</h4>
+        <p>As a Lead, I need to get a simple headline figure quickly, so I can report back to my superiors.</p>
+      </div>
+      <div class="card solution">
+        <h4>Solution: scorecard</h4>
+        <p>Displays a single summarised number. Can show change (for example, compared to last month).</p>
+      </div>
+    </div>
+
+    <p>The first thing you need to do is <a href="#add-pages-and-tabs">add a new page</a> so we have a new place to display our incident data.</p>
+
+    <p>To add our incident scorecard, you can edit the settings of the existing scorecard, or add a new one. To do this:</p>
+    <ol class="step-list">
+      <li>Click 'Add chart' then select 'Scorecard'.</li>
+      <li>Click the 'Setup' tab.</li>
+      <li>Drag 'Incident count' into the 'Primary dimension' field.</li>
+      <li>Hover over the word 'SUM' and click the pencil icon.</li>
+      <li>Click 'Display name' and change it to something user friendly (such as, Incidents).</li>
+       <img class="screenshot" src="Images/scorecard-incidents.png" alt="">
+    </ol>
+
+    <p>The user wants to be able to understand how incidents are changing over time. One way to do this is to add a time comparison to the scorecard. This automatically calculates a comparison to the previous time period, so if the dashboard is set up to see a month, the comparison will be for the previous month.</p>
+    
+    <p>To add a time comparison to your scorecard:</p>
+    <ol class="step-list">
+      <li>Click you scorecard to select it.</li>
+      <li>In the 'Setup' panel, scroll to 'Default date range filter'.</li>
+      <li>Toggle 'Comparison date range' on.</li>
+      <li>Click 'None' and select 'Previous period'.</li>
+      <img class="screenshot" src="Images/time-comparison-1.png" alt="">
+    </ol>
+
+<p>The scorecard will now display a simple visual check which shows how incidents have changed. If there's no data for the previous period, it says 'No data'. You can change if and how this appears in the Style tab, in the 'Missing data' section.</p>
+
+    <img class="screenshot" src="Images/time-comparison-2.png" alt="">
+    </section>
+
+ <section class="page" id="page-add-a-time-series-incidents" data-id="add-a-time-series-incidents">
+ <h1>Add a time series chart for incidents</h1>
+
+    <p>The next user question is <strong>how have incident numbers changed over time?</strong></p>
+
+    <div class="two-col">
+      <div class="card need">
+        <h4>User need</h4>
+        <p>As a Team lead, I need to see how incidents change over time, so I can find the source of the issue.</p>
+      </div>
+      <div class="card solution">
+        <h4>Solution: time series chart</h4>
+        <p>Displays trends over a continuous period. Identifies patterns over time.</p>
+      </div>
+    </div>
+
+    <p>We can show this using a time-series chart:</p>
+    <ol class="step-list">
+      <li>Click 'Add chart'.</li>
+      <li>Select 'Time series chart'.</li>
+      <li>Drag 'Incident_count' onto Metric.</li>
+      <img class="screenshot" src="Images/time-series-incidents-3.png" alt="">
+      <li>Click the pencil to edit: Data type, Date and Time, Month.</li>
+      <img class="screenshot" src="Images/time-series-incidents-2.png" alt="">
+    </ol>
+
+    <h2>Understand time series controls</h2>
+
+    <p>Time series controls can apply:</p>
+    <ul>
+      <li>to the whole board (a global control)</li>
+      <li>to each page</li>
+      <li>to individual components</li>
+    </ul>
+
+    <p>In this case, we may want the line charts to show all data — even if the comparisons are for the month we're in.</p> 
+    
+    <p>To show you this working, you need to temporarily change the auto control for the time series on the tab to 'Last month'. This will make it obvious when we change the graph's controls to be for 'all time'.</p>
+
+   <p>To add a control to a specific component:</p>
+    <ol class="step-list">
+      <li>Click the component to select it.</li>
+      <li>Scroll to 'Default date range filter' and click 'Custom'.</li>
+      <li>Select 'This month' then 'This year'.</li>
+        <img class="screenshot" src="Images/time-control-component.png" alt="">
+      <li>Choose how the bars are ordered: Sort section: Date (Ascending).</li>
+    </ol>
+
+    <p>The graph now always displays data for 'this year', even if the page date control changes.</p>
+
+    <img class="screenshot" src="Images/incidentime.png" alt="">
+
+    </section>
+
+ <section class="page" id="page-add-a-bar-chart-species" data-id="add-a-bar-chart-species">
+ <h1>Add a bar chart for species</h1>
+    <p>The next user question is <strong>what dinosaurs are responsible?</strong></p>
+
+    <div class="two-col">
+      <div class="card need">
+        <h4>User need</h4>
+        <p>As a Team manager, I need to know what dinosaurs are causing the incidents, so I can deal with them.</p>
+      </div>
+      <div class="card solution">
+        <h4>Solution: bar chart</h4>
+        <p>Compares metrics across categories. Shows rankings and distribution.</p>
+      </div>
+    </div>
+
+    <p>We can use a bar chart to see which dinosaurs are responsible for these incidents. To do this:</p>
+    <ol class="step-list">
+      <li>Click 'Add chart' then select 'Vertical bar chart'.</li>
+      <li>Drag 'Species' onto Dimension (you're grouping by species).</li>
+      <li>Drag 'Incident_count' onto Metric (you're measuring incidents per species).</li>
+      <img class="screenshot" src="Images/incidentsetup.png" alt="">
+      <li>Choose how the bars are ordered: Sort section: Incident_count, Order: Descending.</li>
+      <img class="screenshot" src="Images/incidentsort.png" alt="">
+      <li>In the Style tab, change the title to 'Incidents per dinosaur'.</li>
+    </ol>
+
+    <h2>Add a calculated field for groups</h2>
+
+    <p>Sometimes we need to make our own dimensions. We clearly have two groups in the park (carnivores and herbivores) which we need to distinguish so we can use this for filters and charts. We can do this with a calculated field.</p>
+    
+    <p>To define groups using a calculated field:</p>
+    <ol class="step-list">
+      <li>Click 'Add a field' in the Data panel.</li>
+      <li>Name it 'Diet type'.</li>
+      <li>
+        <p>Enter this formula, then click Save:</p>
+        <div class="code-box">
+          <div class="code-label">
+            <span>Diet type formula</span>
+            <button class="copy-btn" onclick="copyCode('diet-type-formula', this)">Copy</button>
+          </div>
+          <pre id="diet-type-formula">CASE
+WHEN Species = "T-Rex" OR Species = "Velociraptor" THEN "Carnivore"
+ELSE "Herbivore"
+END</pre>
+        </div>
+      </li>
+    </ol>
+
+    <p>Now we can explore the data using these groups by editing our 'Incidents per dinosaur' bar chart. To do this</p>
+    <ol class="step-list">
+      <li>Click the 'Incidents per dinosaur' bar chart</li>
+      <li>Click the 'Diet type' dimension in the Data panel and drag it over the 'Dinosaur' dimension</li>
+      <img class="screenshot" src="Images/diettype.png" alt="">
+    </ol>
+
+    <p>This updates the bar chart so it's now grouping incidents using our new groups.</p>
+
+    <img class="screenshot" src="Images/carnivoregraph.png" alt="">
+
+     <p>The updated graph shows us that the carnivores are responsible for the incidents we've been seeing.</p>
+
+    <img class="screenshot" src="Images/carnivore-result.png" alt="">
+    </section>
+
+ <section class="page" id="page-share-your-dashboard" data-id="share-your-dashboard">
+ <h1>Share your dashboard</h1>
+
+    <p>The last user question is <strong>how do I share this with senior leadership?</strong></p>
+
+    <div class="two-col">
+      <div class="card need">
+        <h4>User need</h4>
+        <p>As a Team manager, I need to share an email summary, so I can update my leads quickly and regularly.</p>
+      </div>
+      <div class="card solution">
+        <h4>Solution: schedule delivery</h4>
+        <p>Regularly emails a customised PDF report. Makes information accessible for those without dashboard access.</p>
+      </div>
+    </div>
+
+    <p>Senior leadership does not usually need to interrogate the data and only wants to know the key details. You can share a page or the whole dashboard with them as a pdf file (manually or as a regular emailed report). To do this:</p>
+    <ol class="step-list">
+      <li>Click 'Share' then 'Download report' for a one-off summary.</li>
+      <li>Click 'Schedule delivery' to regularly email a report to stakeholders.</li>
+      <img class="screenshot" src="Images/share-pdf.png" alt="">
+      <li>Use filters to select the filters each page should have.</li>
+      <li>To delete a scheduled delivery, click 'Schedule delivery' then the three dots in the top right.</li>
+    </ol>
+
+    <div class="callout">
+      <p>On the free version, you can only have one scheduled report.</p>
+    </div>
+
+  <p>You may also find it helpful to make a top summary tab which shows high level information first. This is based on the most important questions for these users. This page would not normally have filters or time controls.</p>
+
+
+    <h2>Share access to the whole dashboard</h2> 
+
+    <div class="two-col">
+      <div class="card need">
+        <h4>User need</h4>
+        <p>As a Team manager, I need to share access to the dashboard, so my team can explore the data.</p>
+      </div>
+      <div class="card solution">
+        <h4>Solution: dashboard access</h4>
+        <p>Gives people full access to the dashboard. Allows interrogation of the data.</p>
+      </div>
+    </div>
+
+    <p> Some users, such as those on your team, may want full access to the dashboard so they can explore the data. To give them access:</p>
+    <ol class="step-list">
+      <li>Click 'Share' then 'Invite people'.</li>
+      <img class="screenshot" src="Images/share-dashboard-1.png" alt="">
+      <li>Add names or emails (choose whether to notify them, and set permissions).</li>
+      <img class="screenshot" src="Images/share-dashboard-2.png" alt="">
+    </ol>
+
+    <div class="callout">
+      <p>You need a Google account to access the dashboard. Try this if you have a non-Google address (for example, DSIT).</p>
+    </div>
+    </section>
+
+ <section class="page" id="page-session-3-homework" data-id="session-3-homework">
+ <h1>Session 3 summary and homework</h1>
+    <p>Your dashboard should now include:</p>
+    <ul>
+      <li>updated data showing new dinosaurs and incidents</li>
+      <li>time controls and filters for the data</li>
+      <li>a score card showing the number of incidents</li>
+      <li>a time series for incidents</li>
+      <li>a bar chart exploring the cause of the incidents</li>
+    </ul>
+
+    <img class="screenshot" src="Images/session3-dashboard.png" alt="">
+
+    <p>You may want to:</p>
+    <ul>
+      <li>add filters to the other tabs for carnivore and herbivore</li>
+      <li>change the date granularity on your line chart to see how it affects the data</li>
+      <li>make the population graphs show a full year no matter what date is selected</li>
+      <li>add a graph to show which dinosaurs attack the most</li>
+      <li>add an overview page for the park</li>
+      <li>add a second metric line to your time chart (Visitor Count) alongside Incident Count. Does footfall correlate with incidents?</li>
+    </ul>
+    </section>
+
+ <section class="page" id="page-next-steps" data-id="next-steps">
+ <h1>Next steps</h1>
+
+    <p>Keep playing! Please email jenny.bradley@dsit.gov.uk if you have any questions.</p>
+
+    <p>The principles behind these skills transfer directly to Power BI for those who use Microsoft, but Data Studio is more accessible while you're learning.</p>
+    
+    <div class="callout">
+      <p>Power BI training is coming.</p>
+    </div>
+
+    <img class="screenshot" src="Images/next-steps.png" alt="">
+    </section>
+
+ <footer class="page-footer">Email jenny.bradley@dsit.gov.uk with comments and suggestions - or use this form to <a href="https://forms.cloud.microsoft/pages/responsepage.aspx?id=BXCsy8EC60O0l-ZJLRst2FLcpzkg6RVBh7eU_8sMk6lUMDdIWlVaWUFBNVpRMzZCWVpRT1dMMEMzOC4u&route=shorturl">share feedback</a>.</footer>
+
+ </main>
+</div>
+
+<script>
+function copyCode(id, btn) {
+ const el = document.getElementById(id);
+ const text = el.innerText;
+ navigator.clipboard.writeText(text).then(() => {
+ const original = btn.textContent;
+ btn.textContent = "Copied!";
+ btn.classList.add("copied");
+ setTimeout(() => {
+ btn.textContent = original;
+ btn.classList.remove("copied");
+ }, 1800);
+ });
+}
+
+(function() {
+  const sources = ['Images/session1-dashboard.png', 'Images/session2-dashboard.png', 'Images/session3-dashboard.png'];
+  const labels = ['Session 1', 'Session 2', 'Session 3'];
+  const image = document.getElementById('carouselImage');
+  const label = document.getElementById('carouselLabel');
+  const prevBtn = document.getElementById('carouselPrev');
+  const nextBtn = document.getElementById('carouselNext');
+  let current = 0;
+
+  function showSlide(index) {
+    current = index;
+    image.src = sources[current];
+    image.alt = labels[current] + ' dashboard example';
+    label.textContent = labels[current];
+  }
+
+  prevBtn.addEventListener('click', () => showSlide((current - 1 + sources.length) % sources.length));
+  nextBtn.addEventListener('click', () => showSlide((current + 1) % sources.length));
+})();
+
+const order = ["overview","sessionoverview","session-1-overview","the-scenario","your-data","create-a-dashboard","set-up-your-design","add-a-scorecard","add-a-time-series-chart","add-a-bar-chart","add-a-date-control","add-filters","session-1-homework","session-2-overview","add-pages-and-tabs","add-a-filtered-scorecard","calculate-a-percentage","add-a-multi-series-chart","add-a-table","session-2-homework","session-3-overview","the-new-arrivals","update-your-data","add-a-scorecard-incidents","add-a-time-series-incidents","add-a-bar-chart-species","share-your-dashboard","session-3-homework","next-steps"];
+const titles = {};
+document.querySelectorAll('.page').forEach(p => { titles[p.dataset.id] = p.querySelector('h1').textContent; });
+
+function showPage(id) {
+ if (!order.includes(id)) id = order[0];
+ document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.dataset.id === id));
+ document.querySelectorAll('.nav-link').forEach(a => a.classList.toggle('active', a.dataset.id === id));
+
+ const idx = order.indexOf(id);
+ const prevId = order[idx - 1];
+ const nextId = order[idx + 1];
+ const activePage = document.getElementById('page-' + id);
+
+ let existingPager = activePage.querySelector('.page-pager');
+ if (existingPager) existingPager.remove();
+
+ const pager = document.createElement('div');
+ pager.className = 'page-pager';
+ pager.innerHTML = `
+ <span>${prevId ? `&larr; <a href="#${prevId}">${titles[prevId]}</a>` : ''}</span>
+ <span>${nextId ? `<a href="#${nextId}">${titles[nextId]}</a> &rarr;` : ''}</span>
+ `;
+ activePage.appendChild(pager);
+
+ document.getElementById('mainContent').scrollTo(0, 0);
+ window.scrollTo(0, 0);
+}
+
+window.addEventListener('hashchange', () => showPage(location.hash.slice(1)));
+showPage(location.hash.slice(1) || order[0]);
+</script>
+
+</body>
+</html>
